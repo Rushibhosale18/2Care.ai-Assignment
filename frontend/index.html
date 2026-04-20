@@ -95,11 +95,20 @@
         async function init() {
             try {
                 globalStream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                ws = new WebSocket(`ws://${location.hostname || '127.0.0.1'}:8000/ws/voice`);
+                
+                // Smart Link: Uses Render in production, Localhost in development
+                const isLocal = location.hostname === '127.0.0.1' || location.hostname === 'localhost';
+                const wsUrl = isLocal 
+                    ? `ws://${location.hostname}:8000/ws/voice` 
+                    : `wss://twocare-ai-assignment-rej0.onrender.com/ws/voice`;
+                
+                ws = new WebSocket(wsUrl);
+                
                 ws.onopen = () => { 
-                    toggleBtn.innerText = "LINK ACTIVE"; toggleBtn.style.background = "#059669"; 
-                    addLog("UPLINK", "Secure Clinical WebSocket Connected");
-                    transcriptDiv.innerText = "System Active. Please provide voice command."; 
+                    toggleBtn.innerText = "UPLINK PRO ACTIVE ✅"; 
+                    toggleBtn.style.background = "#059669"; 
+                    addLog("UPLINK", "Live Production WebSocket Connected");
+                    transcriptDiv.innerText = "System Live. Please provide clinical input."; 
                 };
                 ws.onmessage = (e) => {
                     if (!(e.data instanceof Blob)) {
