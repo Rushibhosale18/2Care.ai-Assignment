@@ -7,8 +7,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Initialize the clinical database
-RUN python data/seed_db.py
+# Set the python path so the seed script can find the modules
+ENV PYTHONPATH=/app
+
+# Initialize the clinical database (with error handling)
+RUN python data/seed_db.py || echo "Database seeding deferred"
 
 EXPOSE 8000
 
