@@ -1,5 +1,5 @@
 from sqlmodel import Session
-from memory.db_manager import engine, Patient, DoctorSchedule, create_db_and_tables
+from memory.persistent_memory.db_manager import engine, Patient, DoctorSchedule, create_db_and_tables
 from datetime import datetime, timedelta
 
 def populate_test_data():
