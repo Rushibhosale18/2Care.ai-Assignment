@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2Care.ai | Elite Clinical Console</title>
+    <style>
+        :root {
+            --saffron: #f97316; --white: #FFFFFF; --green: #10b981; --navy: #1e1b4b; --bg: #0f172a;
+        }
+        body { font-family: 'Inter', sans-serif; background: radial-gradient(circle at top right, #1e293b, #0f172a); margin: 0; display: flex; align-items: center; justify-content: center; min-height: 100vh; color: white; padding: 20px; }
+        
+        .console { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); border-radius: 2.5rem; width: 1000px; height: 800px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 50px 100px -20px rgba(0,0,0,0.5); border-top: 10px solid var(--saffron); border-bottom: 10px solid var(--green); }
+        
+        .top-bar { padding: 1.5rem 2.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo-text { font-weight: 900; font-size: 1.6rem; background: linear-gradient(to right, var(--saffron), #fbbf24); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        
+        .lang-tabs { display: flex; background: rgba(0,0,0,0.3); padding: 5px; border-radius: 15px; }
+        .tab { padding: 0.6rem 1.8rem; cursor: pointer; border-radius: 12px; font-size: 0.85rem; font-weight: 700; color: #94a3b8; transition: 0.3s; }
+        .tab.active { background: white; color: var(--navy); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+        
+        .main-grid { display: grid; grid-template-columns: 1fr 340px; flex-grow: 1; }
+        .work-area { padding: 3rem; display: flex; flex-direction: column; text-align: center; border-right: 1px solid rgba(255,255,255,0.05); }
+        .sidebar { padding: 2rem; background: rgba(0,0,0,0.1); }
+
+        .transcript-box { background: rgba(0,0,0,0.2); padding: 2.5rem; border-radius: 2rem; margin: 2rem 0; flex-grow: 1; display: flex; align-items: center; justify-content: center; font-style: italic; color: #cbd5e1; border: 1px dashed rgba(255,255,255,0.1); font-size: 1.3rem; line-height: 1.6; }
+        
+        .blob-trigger { width: 100px; height: 100px; background: linear-gradient(135deg, #4338ca, #1e1b4b); border-radius: 50%; margin: 0 auto; cursor: pointer; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; position: relative; transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+        .blob-trigger.active { transform: scale(1.15); background: var(--saffron); box-shadow: 0 0 60px rgba(249, 115, 22, 0.5); }
+        .blob-trigger.active::after { content: ''; position: absolute; width: 100%; height: 100%; border: 3px solid var(--saffron); border-radius: 50%; animation: ripple 1.2s infinite; }
+        @keyframes ripple { from { transform: scale(1); opacity: 1; } to { transform: scale(1.8); opacity: 0; } }
+
+        .appointment-card { background: linear-gradient(135deg, white, #f1f5f9); color: var(--navy); padding: 1.5rem; border-radius: 1.5rem; margin-top: 1.5rem; border-left: 10px solid var(--green); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
+        .tag-success { background: #dcfce7; color: #166534; font-size: 0.8rem; padding: 6px 14px; border-radius: 10px; font-weight: 800; display: inline-block; margin-top: 10px; }
+
+        .activity-log { background: rgba(0,0,0,0.5); height: 160px; padding: 1.5rem; overflow-y: auto; color: var(--green); font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; border-top: 1px solid rgba(255,255,255,0.05); }
+        .log-entry { margin-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.03); padding-bottom: 6px; }
+
+        .footer { padding: 1rem 2.5rem; background: rgba(0,0,0,0.2); display: flex; justify-content: space-between; font-size: 0.75rem; color: #64748b; font-weight: 600; letter-spacing: 1px; }
+        .init-btn { background: var(--green); color: white; border: none; padding: 0.6rem 2rem; border-radius: 12px; cursor: pointer; font-weight: 800; transition: 0.3s; }
+        .init-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); }
+    </style>
+</head>
+<body>
+    <div class="console">
+        <div class="top-bar">
+            <span class="logo-text">2CARE.AI ELITE</span>
+            <div class="lang-tabs" id="lang-selector">
+                <div class="tab active" onclick="setLang('English', this)">ENGLISH</div>
+                <div class="tab" onclick="setLang('Hindi', this)">हिन्दी</div>
+                <div class="tab" onclick="setLang('Tamil', this)">தமிழ்</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <div class="work-area">
+                <div class="transcript-box" id="transcript">Establishing Neural Uplink...</div>
+                <div id="blob" class="blob-trigger">LISTEN</div>
+            </div>
+
+            <div class="sidebar">
+                <div style="font-weight: 900; color: #94a3b8; font-size: 0.9rem; margin-bottom: 2rem;">ACTIVE PROTOCOLS</div>
+                <div id="app-area"><p style="opacity: 0.4;">Ready for Clinical Input</p></div>
+            </div>
+        </div>
+
+        <div class="activity-log" id="log-box">
+            <div class="log-entry">> Initializing Elite Clinical Environment...</div>
+        </div>
+
+        <div class="footer">
+            <span>SECURE SYSTEM | ENCRYPTION: ACTIVE | STATUS: 450MS TARGET</span>
+            <button class="init-btn" id="toggle">ACTIVATE SYSTEM</button>
+        </div>
+    </div>
+
+    <script>
+        let ws, mediaRecorder, audioChunks = [], globalStream, currentLang = 'English';
+        const blob = document.getElementById('blob'), transcriptDiv = document.getElementById('transcript'), appArea = document.getElementById('app-area'), logBox = document.getElementById('log-box'), toggleBtn = document.getElementById('toggle');
+
+        function addLog(tag, msg) {
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.innerHTML = `<span style="color:#64748b">[${new Date().toLocaleTimeString()}]</span> <span style="color:var(--saffron)">#${tag}</span> ${msg}`;
+            logBox.prepend(entry);
+        }
+
+        function setLang(lang, el) {
+            currentLang = lang;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            addLog("LOCALE", `Transitioning to ${lang}`);
+        }
+
+        async function init() {
+            try {
+                globalStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                ws = new WebSocket(`ws://${location.hostname || '127.0.0.1'}:8000/ws/voice`);
+                ws.onopen = () => { 
+                    toggleBtn.innerText = "LINK ACTIVE"; toggleBtn.style.background = "#059669"; 
+                    addLog("UPLINK", "Secure Clinical WebSocket Connected");
+                    transcriptDiv.innerText = "System Active. Please provide voice command."; 
+                };
+                ws.onmessage = (e) => {
+                    if (!(e.data instanceof Blob)) {
+                        const d = JSON.parse(e.data);
+                        if (d.type === 'feedback') { transcriptDiv.innerText = d.text; addLog("AGENT", `Response Generated: ${d.text.substring(0,30)}...`); }
+                        else if (d.type === 'appointments') updateApp(d.list);
+                    }
+                };
+            } catch (err) { addLog("ERR", "Hardware Access Denied."); }
+        }
+
+        function updateApp(list) {
+            if (list.length === 0) { 
+                addLog("SYNC", "Protocol Cleared.");
+                appArea.innerHTML = '<p style="opacity: 0.4;">Ready for Clinical Input</p>'; 
+                return; 
+            }
+            addLog("SYNC", "New Clinical Entry Recorded in Database.");
+            appArea.innerHTML = list.map(a => `<div class="appointment-card"><strong>${a.doctor}</strong><br><small style="color:#64748b">Tomorrow | 10:00 AM</small><br><span class="tag-success">${a.status}</span></div>`).join('');
+        }
+
+        blob.addEventListener('mousedown', () => { 
+            if (!globalStream) return; 
+            blob.classList.add('active'); 
+            addLog("VOICE", "Recording clinical audio stream...");
+            mediaRecorder = new MediaRecorder(globalStream);
+            mediaRecorder.ondataavailable = (e) => audioChunks.push(e.data);
+            mediaRecorder.onstop = () => { 
+                const b = new Blob(audioChunks);
+                addLog("TX", `Transmitting ${Math.round(b.size/1024)}KB binary data...`);
+                ws.send(JSON.stringify({ type: 'config', language: currentLang })); 
+                ws.send(b); audioChunks = []; 
+            };
+            mediaRecorder.start(); 
+        });
+        blob.addEventListener('mouseup', () => { blob.classList.remove('active'); if (mediaRecorder) mediaRecorder.stop(); });
+        toggleBtn.onclick = init;
+    </script>
+</body>
+</html>

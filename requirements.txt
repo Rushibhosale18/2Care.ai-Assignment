@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+redis
+openai
+sqlmodel
+python-multipart
+pydantic-settings
+websockets
+langdetect
+numpy
+pydub
+python-dotenv
+asyncio
