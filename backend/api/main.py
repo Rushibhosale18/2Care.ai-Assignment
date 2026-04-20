@@ -6,7 +6,6 @@ import uvicorn
 from fastapi import FastAPI, WebSocket
 from fastapi.middleware.cors import CORSMiddleware
 
-# NEW MODULAR IMPORTS
 from services.stt.stt_engine import stt_engine
 from services.tts.tts_engine import tts_engine
 from agent.reasoning.clinical_logic import clinical_reasoning
@@ -14,7 +13,6 @@ from memory.session_memory.session_manager import session_memory
 from memory.persistent_memory.db_manager import create_db_and_tables
 
 app = FastAPI(title="2Care.ai Elite Backend")
-
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"])
 
 @app.on_event("startup")
@@ -29,34 +27,32 @@ async def voice_endpoint(websocket: WebSocket):
         while True:
             received = await websocket.receive()
             if "text" in received: continue
-                
             audio_data = received.get("bytes")
             if not audio_data: continue
 
-            # 1. STT Service
             transcript, stt_ms = stt_engine.transcribe("temp.wav")
             
-            # 2. Agent Reasoning
             stored = session_memory.get_session(session_id) or {}
             history = stored.get("history", [])
             response = clinical_reasoning.process(transcript, history)
             
-            # Persist to Memory
             session_memory.append_message(session_id, {"role": "user", "content": transcript})
             session_memory.append_message(session_id, {"role": "assistant", "content": response["text"]})
             
-            # 3. TTS Service
             audio_resp, tts_ms = tts_engine.synthesize(response["text"])
             
-            # 4. Tool Orchestration / UI Sync
+            # UI LOGIC REFINDED
             msg = response["text"].lower()
             appointments = []
-            if "canceled" in msg or "cancel" in msg:
+            
+            if "cancel" in msg:
                 appointments = []
             elif "confirmed" in msg or "recorded" in msg:
-                appointments = [{"doctor": "Dr. Amit Sharma", "time": "10:00 AM", "status": "Confirmed ✅"}]
+                appointments = [{"doctor": "Dr. Amit Sharma", "time": "10:30 AM", "status": "Confirmed ✅"}]
+            elif "slots" in msg:
+                appointments = [{"doctor": "Dr. Amit Sharma", "time": "10:30 AM | 2:00 PM | 4:30 PM", "status": "Select a Slot"}]
             else:
-                appointments = [{"doctor": "Dr. Amit Sharma", "time": "10:00 AM", "status": "Pending"}]
+                appointments = [] # No card until they ask for a doctor
 
             await websocket.send_json({"type": "appointments", "list": appointments})
             await websocket.send_bytes(audio_resp)
@@ -67,9 +63,7 @@ async def voice_endpoint(websocket: WebSocket):
             })
 
     except Exception as e:
-        print(f"Error: {e}")
-        try: await websocket.close()
-        except: pass
+        print(f"Error: {e}"); await websocket.close()
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8000)

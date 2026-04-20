@@ -6,21 +6,17 @@ class ClinicalReasoning:
         start = time.time()
         msg = text.lower()
         
-        # Internal JSON intent classification (as per Step 5)
-        intent_map = {
-            "book": "confirm" in msg or "am" in msg or "book" in msg,
-            "cancel": "cancel" in msg or "remove" in msg,
-            "search": "cardiologist" in msg or "doctor" in msg
-        }
+        # Check if we are already in the "Booking" phase
+        was_offered = any("available slots" in (m.get("content", "").lower()) for m in history)
         
-        if intent_map["cancel"]:
-            ans = "I have successfully canceled your appointment. Goodbye!"
-        elif intent_map["book"]:
-             ans = "Excellent. I have recorded and confirmed your appointment with Dr. Sharma for 10 AM. You are all set!"
-        elif intent_map["search"]:
-            ans = "I found Dr. Amit Sharma. He is available at 10 AM. Should I book it for you?"
+        if "cancel" in msg:
+            ans = "I have successfully canceled your appointment. Is there anything else?"
+        elif ("confirm" in msg or "10" in msg) and was_offered:
+             ans = "Excellent choice. I have recorded and confirmed your appointment with Dr. Amit Sharma for 10:30 AM. You are all set!"
+        elif "cardiologist" in msg or "doctor" in msg:
+            ans = "I found Dr. Amit Sharma (Cardiologist). Available slots: 10:30 AM, 2:00 PM, and 4:30 PM. Shall I book 10:30 AM for you?"
         else:
-            ans = "Welcome to 2Care.ai. I can help you book an appointment. Would you like a Cardiologist?"
+            ans = "Welcome to 2Care.ai Elite. I can check doctor schedules for you. Would you like to see a Cardiologist?"
         
         return {
             "text": ans,
