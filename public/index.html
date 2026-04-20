@@ -110,13 +110,18 @@
                     addLog("UPLINK", "Live Production WebSocket Connected");
                     transcriptDiv.innerText = "System Live. Please provide clinical input."; 
                 };
-                ws.onmessage = (e) => {
-                    if (!(e.data instanceof Blob)) {
-                        const d = JSON.parse(e.data);
-                        if (d.type === 'feedback') { transcriptDiv.innerText = d.text; addLog("AGENT", `Response Generated: ${d.text.substring(0,30)}...`); }
-                        else if (d.type === 'appointments') updateApp(d.list);
+            ws.onmessage = (e) => {
+                if (!(e.data instanceof Blob)) {
+                    const d = JSON.parse(e.data);
+                    if (d.type === 'feedback') { 
+                        transcriptDiv.innerText = d.text; 
+                        addLog("AGENT", `AI: ${d.text.substring(0,30)}...`); 
                     }
-                };
+                    else if (d.type === 'appointments') {
+                        updateApp(d.list);
+                    }
+                }
+            };
             } catch (err) { addLog("ERR", "Hardware Access Denied."); }
         }
 
